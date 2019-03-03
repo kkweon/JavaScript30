@@ -62,13 +62,53 @@
       background: black;
       position: absolute;
       top: 50%;
+      transform: rotate(90deg);
+      transform-origin: 100%;
+      transition: all 0.05s;
+      transition-timing-function: cubic-bezier(0.1, 2.7, 0.58, 1);
     }
 
   </style>
 
   <script>
+const hourHand = document.querySelector(".hour-hand");
+const minuteHand = document.querySelector(".min-hand");
+const secondHand = document.querySelector(".second-hand");
 
 
+// When 360 deg -> 0 deg, the transition animation will break
+// So this helper function will turn off the transition when it goes from 360 + offset to 0ffset degree
+function fixTransition(elem, deg, offset) {
+  if (deg === offset) {
+    elem.style.transition = "none";
+  } else if (elem.style.transition) {
+    elem.style.transition = "";
+  }
+}
+
+function setDate() {
+  const now = new Date();
+  const hours = now.getHours();
+  const mins = now.getMinutes();
+  const seconds = now.getSeconds();
+
+  const offset = 90;
+
+  const hrDeg = (hours / 24) * 360 + offset;
+  const minDeg = (mins / 60) * 360 + offset;
+  const secDeg = (seconds / 60) * 360 + offset;
+
+  fixTransition(hourHand, hrDeg, offset);
+  fixTransition(minuteHand, minDeg, offset);
+  fixTransition(secondHand, secDeg, offset);
+
+  hourHand.style.transform = `rotate(${hrDeg}deg)`;
+  minuteHand.style.transform = `rotate(${minDeg}deg)`;
+  secondHand.style.transform = `rotate(${secDeg}deg)`;
+}
+
+setDate();
+setInterval(setDate, 1000);
   </script>
 </body>
 </html>
