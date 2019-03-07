@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Type Ahead 👀</title>
+    <link rel="stylesheet"
+          href="style.css">
+</head>
+
+<body>
+
+    <form class="search-form">
+        <input type="text"
+               class="search"
+               placeholder="City or State">
+        <ul class="suggestions">
+            <li>Filter for a city</li>
+            <li>or a state</li>
+        </ul>
+    </form>
+    <script>
+        const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+
+        let cities = []
+
+        fetch(endpoint)
+          .then(d => d.json())
+          .then(cs => cities = cs)
+
+
+        const inputEl = document.querySelector(".search")
+        const ul = document.querySelector(".suggestions")
+
+        inputEl.addEventListener("input", e => {
+          const {
+            value
+          } = e.currentTarget
+          updateDom(ul, cities, value);
+        })
+
+        function numberWithCommas(x) {
+          return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        function updateDom(ulEl, cities, text) {
+          if (!text) {
+            ulEl.innerHTML = "";
+            return;
+          }
+          const reg = new RegExp(text, "gi")
+          const filterd = cities.filter(c => reg.test(c.city) || reg.test(c.state))
+          ulEl.innerHTML = filterd.map(c => `<li>
+<span class="name">${pretty(c, reg)}</span>
+<span class="population">${numberWithCommas(c.population)}</span>
+</li>`).join("")
+        }
+
+        function pretty(c, reg) {
+          const {
+            city,
+            state
+          } = c
+          const text = `${city}, ${state}`
+          return text.replace(reg, `<span class="hl">${reg.source}</span>`)
+        }
+
+    </script>
+</body>
+
+</html>
